@@ -1,0 +1,33 @@
+# Copy to terraform.tfvars and fill in real values. Do NOT commit terraform.tfvars.
+# ------------------------------------------------------------------------------
+
+# Globally unique project ID for this environment.
+project_id   = "acme-platform-dev"
+project_name = "ACME Platform dev"
+
+# Set exactly ONE of folder_id / org_id as the project parent.
+folder_id = "123456789012"
+# org_id  = "987654321098"
+
+# Billing account to attach.
+billing_account = "AAAAAA-BBBBBB-CCCCCC"
+
+# Primary region.
+region = "europe-west1"
+
+# Optional: email for monitoring alerts.
+# alert_email = "platform-oncall@example.com"
+
+# Optional: aggregated log sink destination (API form).
+# log_sink_destination = "storage.googleapis.com/acme-dev-logs-archive"
+
+# GKE control plane access (dev keeps a public, authorized-network-gated endpoint).
+enable_private_endpoint = false
+master_authorized_networks = [
+  { cidr_block = "203.0.113.0/24", display_name = "corp-egress" },
+]
+
+# dev posture: disposable cluster, Cloud Armor in preview mode.
+deletion_protection = false
+cloud_armor_enforce = false
+blocked_country_codes = []

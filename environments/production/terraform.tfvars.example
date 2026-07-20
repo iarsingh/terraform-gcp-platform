@@ -1,0 +1,29 @@
+# Copy to terraform.tfvars and fill in real values. Do NOT commit terraform.tfvars.
+# ------------------------------------------------------------------------------
+
+project_id   = "acme-platform-prod"
+project_name = "ACME Platform production"
+
+# Set exactly ONE of folder_id / org_id as the project parent.
+folder_id = "123456789012"
+# org_id  = "987654321098"
+
+billing_account = "AAAAAA-BBBBBB-CCCCCC"
+
+region         = "europe-west1"
+node_locations = ["europe-west1-b", "europe-west1-c", "europe-west1-d"]
+
+# Production alerting should always be configured.
+alert_email          = "platform-oncall@example.com"
+log_sink_destination = "storage.googleapis.com/acme-prod-logs-archive"
+
+# Production hardening: private control plane, deletion protection, enforced WAF.
+enable_private_endpoint = true
+master_authorized_networks = [
+  { cidr_block = "10.12.0.0/20", display_name = "prod-private-subnet" },
+  { cidr_block = "203.0.113.0/24", display_name = "corp-egress" },
+]
+
+deletion_protection   = true
+cloud_armor_enforce   = true
+blocked_country_codes = ["KP", "RU"]
