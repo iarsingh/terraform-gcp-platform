@@ -1,0 +1,128 @@
+name: terraform-ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to apply (manual, gated)"
+        required: true
+        default: "dev"
+        type: choice
+        options: [dev, staging, production]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.15.4"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Static analysis: fmt + validate + lint/security scanners. Fast, no cloud.
+  # ---------------------------------------------------------------------------
+  static:
+    name: fmt / validate / lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: terraform fmt (check)
+        run: terraform fmt -check -recursive
+
+      - name: terraform validate (all modules and environments)
+        run: |
+          set -e
+          for dir in modules/*/ environments/*/; do
+            echo "::group::validate $dir"
+            terraform -chdir="$dir" init -backend=false -input=false >/dev/null
+            terraform -chdir="$dir" validate -no-color
+            echo "::endgroup::"
+          done
+
+      - name: tflint
+        uses: terraform-linters/setup-tflint@v4
+      - run: tflint --recursive
+
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          soft_fail: false
+
+      - name: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: environments
+          external_checks_dirs: policies
+          quiet: true
+          soft_fail: false
+
+  # ---------------------------------------------------------------------------
+  # Plan matrix: one non-blocking plan per environment on PRs. Uses Workload
+  # Identity Federation (no long-lived JSON keys) to authenticate to GCP.
+  # ---------------------------------------------------------------------------
+  plan:
+    name: plan (${{ matrix.environment }})
+    needs: static
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, staging, production]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        name: Authenticate to GCP (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.TF_PLAN_SA }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: terraform init
+        run: terraform -chdir=environments/${{ matrix.environment }} init -input=false
+
+      - name: terraform plan
+        run: terraform -chdir=environments/${{ matrix.environment }} plan -input=false -no-color
+
+  # ---------------------------------------------------------------------------
+  # Apply: manual dispatch only, gated by a protected GitHub Environment.
+  # Production requires reviewer approval configured on the Environment.
+  # ---------------------------------------------------------------------------
+  apply:
+    name: apply (${{ github.event.inputs.environment }})
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }} # protection rules enforce approval
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        name: Authenticate to GCP (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.TF_APPLY_SA }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: terraform init
+        run: terraform -chdir=environments/${{ github.event.inputs.environment }} init -input=false
+
+      - name: terraform apply
+        run: terraform -chdir=environments/${{ github.event.inputs.environment }} apply -input=false -auto-approve

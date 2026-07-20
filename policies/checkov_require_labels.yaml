@@ -1,0 +1,28 @@
+# Custom Checkov policy: require governance labels on GKE clusters.
+#
+#   checkov -d environments/ --external-checks-dir policies
+#
+metadata:
+  id: "CKV_GCP_CUSTOM_2"
+  name: "Ensure GKE clusters carry env, team, and managed_by labels"
+  category: "GENERAL_SECURITY"
+  severity: "MEDIUM"
+scope:
+  provider: "gcp"
+definition:
+  and:
+    - cond_type: "attribute"
+      resource_types:
+        - "google_container_cluster"
+      attribute: "resource_labels.env"
+      operator: "exists"
+    - cond_type: "attribute"
+      resource_types:
+        - "google_container_cluster"
+      attribute: "resource_labels.team"
+      operator: "exists"
+    - cond_type: "attribute"
+      resource_types:
+        - "google_container_cluster"
+      attribute: "resource_labels.managed_by"
+      operator: "exists"

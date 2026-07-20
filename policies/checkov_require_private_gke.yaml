@@ -1,0 +1,26 @@
+# Custom Checkov policy (YAML DSL). Place this directory on Checkov's
+# --external-checks-dir to enforce it alongside the built-in checks:
+#
+#   checkov -d environments/ --external-checks-dir policies
+#
+metadata:
+  id: "CKV_GCP_CUSTOM_1"
+  name: "Ensure GKE clusters enable private nodes"
+  category: "NETWORKING"
+  severity: "HIGH"
+scope:
+  provider: "gcp"
+definition:
+  and:
+    - cond_type: "attribute"
+      resource_types:
+        - "google_container_cluster"
+      attribute: "private_cluster_config.0.enable_private_nodes"
+      operator: "equals"
+      value: true
+    - cond_type: "attribute"
+      resource_types:
+        - "google_container_cluster"
+      attribute: "remove_default_node_pool"
+      operator: "equals"
+      value: true
