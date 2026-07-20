@@ -1,0 +1,40 @@
+# Terraform state — never commit; lives in remote GCS backend
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Crash / debug logs
+crash.log
+crash.*.log
+
+# Provider plugins, module cache, lock dirs
+.terraform/
+.terraform.lock.hcl
+
+# Variable files may contain secrets/project-specific values — commit only *.example
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Plan artifacts
+*.tfplan
+*.plan
+plan.out
+
+# Credentials — never commit service account keys
+*-key.json
+*credentials*.json
+service-account*.json
+.gcp/
+
+# CLI override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# OS / editor cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/
