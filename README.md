@@ -1,5 +1,9 @@
 # Terraform GCP Landing Zone
 
+<!-- repository-summary -->
+A reusable multi-environment GCP foundation with Shared VPC, private GKE, IAM, Cloud NAT, observability, and security controls.
+<!-- /repository-summary -->
+
 A production-shaped, multi-environment **GCP platform foundation** built as
 reusable Terraform modules composed per environment (dev / staging /
 production). It provisions a Shared VPC with public/private subnets, Cloud
