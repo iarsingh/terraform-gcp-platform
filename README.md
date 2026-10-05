@@ -1,5 +1,38 @@
 # Terraform GCP Landing Zone
 
+<!-- project-guide:start -->
+## Project guide
+
+[Project architecture](PROJECT_ARCHITECTURE.md) · [Interview questions and answers](INTERVIEW_QA.md)
+
+Use the architecture document for the component diagram, implementation boundaries, and verification entry points. The interview guide includes source-backed answers and project walkthroughs.
+
+### Implementation map
+
+| Component | Responsibility |
+| --- | --- |
+| [`environments/dev/backend.tf`](environments/dev/backend.tf) | Terraform resource/module declarations |
+| [`environments/dev/main.tf`](environments/dev/main.tf) | Terraform resource/module declarations |
+| [`modules/artifact-registry/main.tf`](modules/artifact-registry/main.tf) | Terraform resource/module declarations |
+| [`modules/artifact-registry/outputs.tf`](modules/artifact-registry/outputs.tf) | Terraform resource/module declarations |
+| [`modules/artifact-registry/variables.tf`](modules/artifact-registry/variables.tf) | Terraform resource/module declarations |
+| [`modules/artifact-registry/versions.tf`](modules/artifact-registry/versions.tf) | Terraform resource/module declarations |
+| [`scripts/bootstrap-state-bucket.sh`](scripts/bootstrap-state-bucket.sh) | Implementation or supporting configuration |
+| [`scripts/plan-all.sh`](scripts/plan-all.sh) | Implementation or supporting configuration |
+| [`scripts/validate.sh`](scripts/validate.sh) | Implementation or supporting configuration |
+| [`environments/dev/outputs.tf`](environments/dev/outputs.tf) | Terraform resource/module declarations |
+| [`environments/dev/providers.tf`](environments/dev/providers.tf) | Terraform resource/module declarations |
+| [`environments/dev/variables.tf`](environments/dev/variables.tf) | Terraform resource/module declarations |
+| [`Makefile`](Makefile) | Implementation or supporting configuration |
+| [`.github/workflows/terraform-ci.yml`](.github/workflows/terraform-ci.yml) | GitHub Actions job definitions |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Project explanations or operating notes |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Project explanations or operating notes |
+| [`README.md`](README.md) | Project explanations or operating notes |
+
+Setup and examples are described in the existing project notes below. Consult the component-specific manifests before assuming a single launch command.
+
+<!-- project-guide:end -->
+
 <!-- repository-summary -->
 A reusable multi-environment GCP foundation with Shared VPC, private GKE, IAM, Cloud NAT, observability, and security controls.
 <!-- /repository-summary -->
