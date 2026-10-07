@@ -340,3 +340,7 @@ Project architecture, interview guides, and local source links are checked autom
 ```bash
 python3 .github/scripts/validate_project_docs.py
 ```
+
+## Enterprise policy readiness
+
+Formatting, provider validation, and TFLint run in CI. The project module now explicitly constrains the null provider used by its parent guard. Strict Checkov checks remain enabled and block the current lab blueprint on enterprise settings such as customer-managed repository encryption, Google Groups RBAC, Binary Authorization, and audit configuration. Before deploying, supply the organization settings and review findings against the managed-node-pool and Dataplane V2 architecture. The upgrade does not apply Terraform or provision cloud resources.
